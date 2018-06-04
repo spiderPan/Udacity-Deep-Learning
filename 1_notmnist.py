@@ -65,6 +65,21 @@ def maybe_extract(filename, force=False):
     return data_folders
 
 
+def load_letter(folder, min_num_images):
+    image_files = os.listdir(folder)
+    dataset = np.ndarray(shape=(len(image_files), image_size, image_size), dtype=np.float32)
+    print(folder)
+    num_images = 0
+    for image in image_files:
+        image_file = os.path.join(folder, image)
+        try:
+            image_data = (ndimage.imread(image_file).astype(float) - pixel_depth / 2) / pixel_depth
+            if image_data.shape != (image_size, image_size):
+                raise Exception('Unexpected image shape {}'.format(str(image_data.shape)))
+            dataset[num_images, :, :] = image_data
+            num_images = num_images + 1
+
+
 train_filename = maybe_download('notMNIST_large.tar.gz', 247336696)
 test_filename = maybe_download('notMNIST_small.tar.gz', 8458043)
 
@@ -72,3 +87,8 @@ num_classes = 10
 np.random.seed(133)
 train_folders = maybe_extract(train_filename)
 test_folders = maybe_extract(test_filename)
+
+display(Image(filename="notMNIST_small/A/Q0NXaWxkV29yZHMtQm9sZEl0YWxpYy50dGY=.png"))
+
+image_size = 28,
+pixel_depth = 255.0
