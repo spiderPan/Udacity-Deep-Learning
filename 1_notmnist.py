@@ -48,5 +48,27 @@ def maybe_download(filename, expected_bytes, force=False):
     return dest_filename
 
 
+def maybe_extract(filename, force=False):
+    root = os.path.splitext(os.path.splitext(filename)[0])[0]
+    if os.path.isdir(root) and not force:
+        print('{} already present - Skipping extraction of {}'.format(root, filename))
+    else:
+        print('Extracting data for {}. This may take a while, please wait.'.format(root))
+        tar = tarfile.open(filename)
+        sys.stdout.flush()
+        tar.extractall(data_root)
+        tar.close()
+    data_folders = [os.path.join(root, d) for d in sorted(os.listdir(root))]
+    if len(data_folders) != num_classes:
+        raise Exception('Expected {} folders, one per class. Found {} instead.'.format(num_classes, len(data_folders)))
+    print(data_folders)
+    return data_folders
+
+
 train_filename = maybe_download('notMNIST_large.tar.gz', 247336696)
 test_filename = maybe_download('notMNIST_small.tar.gz', 8458043)
+
+num_classes = 10
+np.random.seed(133)
+train_folders = maybe_extract(train_filename)
+test_folders = maybe_extract(test_filename)
