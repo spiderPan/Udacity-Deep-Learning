@@ -33,6 +33,33 @@ def read_data(filename):
         data = tf.compat.as_str(f.read(f.namelist()[0])).split()
     return data
 
+
+def build_dataset(words):
+    vocabulary_size = 50000
+    count = [['UNK', -1]]
+    count.extend(collections.Counter(words).most_common(vocabulary_size - 1))
+    dictionary = dict()
+    for word, _ in count:
+        dictionary[word] = len(dictionary)
+    data = list()
+    unk_count = 0
+    for word in words:
+        if word in dictionary:
+            index = dictionary[word]
+        else:
+            index = 0
+            unk_count = unk_count + 1
+        data.append(index)
+    count[0][1] = unk_count
+    reverse_dictionary = dict(zip(dictionary.values(), dictionary.keys()))
+    return data, count, dictionary, reverse_dictionary
+
+
 filename = maybe_download('./data/text8.zip', 31344016)
-print('Data size %d' % len(words))
 words = read_data(filename)
+print('Data size %d' % len(words))
+
+data, count, dictionary, reverse_dictionary = build_dataset(words)
+print('Most common words (+UNK)', count[:5])
+print('Sample data', data[:10])
+
